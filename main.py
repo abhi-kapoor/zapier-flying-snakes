@@ -54,22 +54,8 @@ def move(game_state: typing.Dict) -> typing.Dict:
     check_other_snakes(is_move_safe, game_state)
     check_other_snake_collisions(is_move_safe, game_state)
 
-    # Are there any safe moves left?
-    safe_moves = [
-        move
-        for move, isSafe in is_move_safe.items()
-        if isSafe
-    ]
-
-    if len(safe_moves) == 0:
-        print(f"MOVE {game_state['turn']}: No safe moves detected! Moving down")
-        return {"move": "down"}
-
     # Choose a random move from the safe ones
-    next_move = random.choice(safe_moves)
-
-    # TODO: Step 4 - Move towards food instead of random, to regain health and survive longer
-    # food = game_state['board']['food']
+    next_move = pick_a_move(is_move_safe, game_state)
 
     print(f"MOVE {game_state['turn']}: {next_move}")
     model = {"move": next_move}
@@ -83,6 +69,45 @@ shouts = [
     'MY POWER GOES TO 9000!!!1',
     'GET SNAKED!',
 ]
+
+
+def pick_a_move(is_move_safe, game_state):
+    # Are there any safe moves left?
+    safe_moves = [
+        move
+        for move, isSafe in is_move_safe.items()
+        if isSafe
+    ]
+
+    if len(safe_moves) == 0:
+        print(f"MOVE {game_state['turn']}: No safe moves detected! Moving down")
+        return {"move": "down"}
+
+    if game_state["you"]["health"] < 50:
+        food_move = find_food(game_state)
+        if food_move in safe_moves:
+            return food_move
+    
+    next_move = random.choice(safe_moves)
+
+    return next_move
+
+
+def find_food(is_move_safe, game_state):
+    head = game_state["you"]["body"][0]
+    food_coords = {
+        to_tuple(food)
+        for food in game_state["board"]["food"]
+    }
+
+    for key, action in moves.items():
+        if is_move_safe[key] is False:
+            continue
+
+        head_coords = action(head)
+        head_coords = to_tuple(head_coords)
+        if head_coords in food_coords:
+            return key
 
 
 def check_other_snake_collisions(is_move_safe, game_state):
@@ -109,6 +134,7 @@ def check_other_snake_collisions(is_move_safe, game_state):
             other_health = snake["health"]
             if other_health >= my_health:
                 is_move_safe[key] = False
+
 
 def to_tuple(d):
     return d["x"], d["y"]
