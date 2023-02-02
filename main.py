@@ -72,7 +72,17 @@ def move(game_state: typing.Dict) -> typing.Dict:
     # food = game_state['board']['food']
 
     print(f"MOVE {game_state['turn']}: {next_move}")
-    return {"move": next_move}
+    model = {"move": next_move}
+    if game_state['turn'] % 5 == 0:
+        model['shout'] = random.choice(shouts)
+    return model
+
+
+shouts = [
+    'IMA FIRIN MY LAZER!!1',
+    'MY POWER GOES TO 9000!!!1',
+    'GET SNAKED!',
+]
 
 
 def check_other_snake_collisions(is_move_safe, game_state):
@@ -95,10 +105,10 @@ def check_other_snake_collisions(is_move_safe, game_state):
             if my_possible_move not in other_possible_moves:
                 continue
 
-            is_move_safe[key] = False
-            # # other_health = snake["health"]
-            # # if other_health >= my_health:
-            #     is_move_safe[key] = False
+            # is_move_safe[key] = False
+            other_health = snake["health"]
+            if other_health >= my_health:
+                is_move_safe[key] = False
 
 
 def get_possible_moves(snake):
