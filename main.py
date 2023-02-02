@@ -25,10 +25,10 @@ def info() -> typing.Dict:
 
     return {
         "apiversion": "1",
-        "author": "Team Flying Snakes",  
-        "color": "#D36750", 
-        "head": "fang",  
-        "tail": "freckled",  
+        "author": "Team Flying Snakes",
+        "color": "#D36750",
+        "head": "fang",
+        "tail": "freckled",
     }
 
 
@@ -95,9 +95,10 @@ def check_other_snake_collisions(is_move_safe, game_state):
             if my_possible_move not in other_possible_moves:
                 continue
 
-            other_health = snake["health"]
-            if other_health >= my_health:
-                is_move_safe[key] = False
+            is_move_safe[key] = False
+            # # other_health = snake["health"]
+            # # if other_health >= my_health:
+            #     is_move_safe[key] = False
 
 
 def get_possible_moves(snake):
