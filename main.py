@@ -83,11 +83,10 @@ def pick_a_move(is_move_safe, game_state):
         print(f"MOVE {game_state['turn']}: No safe moves detected! Moving down")
         return {"move": "down"}
 
-    if game_state["you"]["health"] < 50:
-        food_move = find_food(game_state)
-        if food_move in safe_moves:
-            return food_move
-    
+    food_move = find_food(game_state)
+    if food_move in safe_moves:
+        return food_move
+
     next_move = random.choice(safe_moves)
 
     return next_move
