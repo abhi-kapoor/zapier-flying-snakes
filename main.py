@@ -101,7 +101,7 @@ def check_other_snake_collisions(is_move_safe, game_state):
             if is_move_safe[key] is False:
                 continue
 
-            my_possible_move = moves[key](my_head)
+            my_possible_move = to_tuple(moves[key](my_head))
             if my_possible_move not in other_possible_moves:
                 continue
 
@@ -110,10 +110,13 @@ def check_other_snake_collisions(is_move_safe, game_state):
             if other_health >= my_health:
                 is_move_safe[key] = False
 
+def to_tuple(d):
+    return d["x"], d["y"]
+
 
 def get_possible_moves(snake):
     return {
-        action(snake["body"][0])
+        to_tuple(action(snake["body"][0]))
         for action in moves.values()
     }
 
