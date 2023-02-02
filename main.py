@@ -10,6 +10,9 @@
 # To get you started we've included code to prevent your Battlesnake from moving backwards.
 # For more info see docs.battlesnake.com
 
+# notes:
+# - 0,0 = bottom left
+
 import random
 import typing
 
@@ -50,24 +53,23 @@ def move(game_state: typing.Dict) -> typing.Dict:
     my_head = game_state["you"]["body"][0]  # Coordinates of your head
     my_neck = game_state["you"]["body"][1]  # Coordinates of your "neck"
 
-    if my_neck["x"] < my_head["x"]:  # Neck is left of head, don't move left
-        is_move_safe["left"] = False
-
-    elif my_neck["x"] > my_head["x"]:  # Neck is right of head, don't move right
-        is_move_safe["right"] = False
-
-    elif my_neck["y"] < my_head["y"]:  # Neck is below head, don't move down
-        is_move_safe["down"] = False
-
-    elif my_neck["y"] > my_head["y"]:  # Neck is above head, don't move up
-        is_move_safe["up"] = False
+    check_body_position(is_move_safe, game_state)
 
     # TODO: Step 1 - Prevent your Battlesnake from moving out of bounds
-    # board_width = game_state['board']['width']
-    # board_height = game_state['board']['height']
+    board_width = game_state['board']['width']
+    board_height = game_state['board']['height']
+    if is_move_safe["up"] and my_head["y"] == board_height - 1:
+        is_move_safe["up"] = False
+    if is_move_safe["down"] and my_head["y"] == 0:
+        is_move_safe["down"] = False
+    if is_move_safe["left"] and my_head["x"] == 0:
+        is_move_safe["left"] = False
+    if is_move_safe["right"] and my_head["x"] == board_width - 1:
+        is_move_safe["right"] = False
 
     # TODO: Step 2 - Prevent your Battlesnake from colliding with itself
-    # my_body = game_state['you']['body']
+    my_body = game_state['you']['body'][1:]
+
 
     # TODO: Step 3 - Prevent your Battlesnake from colliding with other Battlesnakes
     # opponents = game_state['board']['snakes']
@@ -90,6 +92,47 @@ def move(game_state: typing.Dict) -> typing.Dict:
 
     print(f"MOVE {game_state['turn']}: {next_move}")
     return {"move": next_move}
+
+
+def move_left(d: dict):
+    return {
+        "x": d["x"] - 1,
+        "y": d["y"],
+    }
+
+
+moves = {
+    "left": lambda d: {
+        "x": d["x"] - 1,
+        "y": d["y"],
+    },
+    "right": lambda d: {
+        "x": d["x"] + 1,
+        "y": d["y"]
+    },
+    "down": lambda d: {
+        "x": d["x"],
+        "y": d["y"] - 1,
+    },
+    "up": lambda d: {
+        "x": d["x"],
+        "y": d["y"] + 1,
+    },
+}
+
+
+def check_body_position(is_move_safe, game_state):
+    head = game_state["you"]["body"][0]
+    body = game_state["you"]["body"][1:]
+
+    for meat in body:
+        for key in ["left", "right", "down", "up"]:
+            if not is_move_safe[key]:
+                continue
+
+            new_head = moves[key](head)
+            if new_head == meat:
+                is_move_safe[key] = False
 
 
 # Start server when `python main.py` is run
