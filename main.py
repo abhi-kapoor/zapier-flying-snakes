@@ -52,15 +52,14 @@ def move(game_state: typing.Dict) -> typing.Dict:
     check_body_position(is_move_safe, game_state)
     check_board_boundaries(is_move_safe, game_state)
     check_other_snakes(is_move_safe, game_state)
-
-    # TODO: Step 3 - Prevent your Battlesnake from colliding with other Battlesnakes
-    # opponents = game_state['board']['snakes']
+    check_other_snake_collisions(is_move_safe, game_state)
 
     # Are there any safe moves left?
-    safe_moves = []
-    for move, isSafe in is_move_safe.items():
-        if isSafe:
-            safe_moves.append(move)
+    safe_moves = [
+        move
+        for move, isSafe in is_move_safe.items()
+        if isSafe
+    ]
 
     if len(safe_moves) == 0:
         print(f"MOVE {game_state['turn']}: No safe moves detected! Moving down")
@@ -74,6 +73,38 @@ def move(game_state: typing.Dict) -> typing.Dict:
 
     print(f"MOVE {game_state['turn']}: {next_move}")
     return {"move": next_move}
+
+
+def check_other_snake_collisions(is_move_safe, game_state):
+    me = game_state["you"]
+    my_head = me["body"][0]
+    my_health = me["health"]
+    other_snakes = game_state["board"]["snakes"]
+
+    for snake in other_snakes:
+        if snake["id"] == me["id"]:
+            continue  # tested in other function
+
+        other_possible_moves = get_possible_moves(snake)
+
+        for key in moves:
+            if is_move_safe[key] is False:
+                continue
+
+            my_possible_move = moves[key](my_head)
+            if my_possible_move not in other_possible_moves:
+                continue
+
+            other_health = snake["health"]
+            if other_health >= my_health:
+                is_move_safe[key] = False
+
+
+def get_possible_moves(snake):
+    return {
+        action(snake["body"][0])
+        for action in moves.values()
+    }
 
 
 def check_board_boundaries(is_move_safe, game_state):
