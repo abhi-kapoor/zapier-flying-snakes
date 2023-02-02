@@ -85,10 +85,10 @@ def pick_a_move(is_move_safe, game_state):
 
     food_move = find_food(game_state)
     if food_move in safe_moves:
+        print("- finding food")
         return food_move
 
     next_move = random.choice(safe_moves)
-
     return next_move
 
 
