@@ -83,7 +83,7 @@ def pick_a_move(is_move_safe, game_state):
         print(f"MOVE {game_state['turn']}: No safe moves detected! Moving down")
         return {"move": "down"}
 
-    food_move = find_food(game_state)
+    food_move = find_food(is_move_safe, game_state)
     if food_move in safe_moves:
         print("- finding food")
         return food_move
