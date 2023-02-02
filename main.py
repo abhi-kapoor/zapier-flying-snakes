@@ -51,6 +51,7 @@ def move(game_state: typing.Dict) -> typing.Dict:
 
     check_body_position(is_move_safe, game_state)
     check_board_boundaries(is_move_safe, game_state)
+    check_other_snakes(is_move_safe, game_state)
 
     # TODO: Step 3 - Prevent your Battlesnake from colliding with other Battlesnakes
     # opponents = game_state['board']['snakes']
@@ -90,6 +91,17 @@ def check_board_boundaries(is_move_safe, game_state):
         is_move_safe["right"] = False
 
 
+def check_other_snakes(is_move_safe, game_state):
+    me = game_state["you"]
+    my_head = me["body"][0]
+    other_snakes = game_state["board"]["snakes"]
+    for snake in other_snakes:
+        if snake["id"] == me["id"]:
+            continue  # tested in other function
+
+        check_snake_vs_head(my_head, snake["body"], is_move_safe)
+
+
 def move_left(d: dict):
     return {
         "x": d["x"] - 1,
@@ -121,6 +133,10 @@ def check_body_position(is_move_safe, game_state):
     head = game_state["you"]["body"][0]
     body = game_state["you"]["body"][1:]
 
+    check_snake_vs_head(head, body, is_move_safe)
+
+
+def check_snake_vs_head(head, body, is_move_safe):
     for meat in body:
         for key in ["left", "right", "down", "up"]:
             if not is_move_safe[key]:
